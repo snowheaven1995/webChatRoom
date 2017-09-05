@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>chatRoom</title>
+  </head>
+  <body>
+  	<ul class="pages">
+  		<li class="chatPage hidden">
+  			<h1>chatRoom</h1>
+  			<div class="msgRecord">
+  				<p class="welcome">welcome to my chat room</p>
+  			</div>
+
+  			<input type="text" name="" class="submitmsg">
+  			<button class="submitButton">sendMessage</button>
+  		</li>
+  		<li class="loginPage show">
+  			<div >
+  				<p>what's your name</p>
+  				<input type="text" name="" class='nickName'>
+  			</div>
+  		</li>
+  	</ul>
+    
+    <script src="http://222.222.124.77:9001/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io.connect('http://192.168.1.178:8008');
+      $('.nickName').keydown(function(e){
+      	if(e.keyCode ==13){
+      		if( $('.nickName').val()!=''){
+      			$('.loginPage').removeClass('show').addClass('hidden').siblings().addClass('show').removeClass('hidden');
+      			socket.emit('username',{text:$('.nickName').val()});
+      		}
+      	}
+      });
+      $('.submitButton').click(function(){
+      	var sendmsg = $('.submitmsg').val();
+      	console.log(sendmsg);
+      	socket.emit('message',{text:sendmsg});
+      	$('.welcome').after('<p>' + sendmsg + '</p>');
+      });
+      socket.on('otherMessage', function (data) {
+        $('.welcome').after('<p>' + data.text + '</p>');
+      });
+       socket.on('otherUser', function (data) {
+        $('.welcome').after('<p style="text-align:center">welcome&nbsp;' + data.text + '&nbsp;into chat room</p>');
+      });
+    </script>
+    <style type="text/css">
+    	.msgRecord{
+    		width: 100%;
+    		height: 600px;
+    		overflow-y: scroll;
+    	}
+    	.submitmsg{
+    		width: 80%;
+    		height: 50px;
+    	}
+    	.pages{
+    		list-style: none;
+    	}
+    	.show{
+    		display: block;
+    	}
+    	.hidden{
+    		display: none;
+    	}
+    </style>
+  </body>
+</html>
